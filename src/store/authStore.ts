@@ -38,11 +38,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       })
     } catch (err: any) {
+      const msg = err.message || err.response?.data?.detail || 'Login failed. Please check your credentials.'
       set({
-        error: err.response?.data?.detail || 'Login failed. Please check your credentials.',
+        error: msg,
         isLoading: false,
       })
-      throw err
+      throw new Error(msg)
     }
   },
 
@@ -60,11 +61,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       })
     } catch (err: any) {
+      const msg = err.message || err.response?.data?.detail || 'Signup failed. Please try again.'
       set({
-        error: err.response?.data?.detail || 'Signup failed. Please try again.',
+        error: msg,
         isLoading: false,
       })
-      throw err
+      throw new Error(msg)
     }
   },
 

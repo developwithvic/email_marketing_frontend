@@ -63,11 +63,17 @@ class APIClient {
     try {
       const res = await this.client.post('/auth/login', { email, password })
       return res.data
-    } catch {
-      // Fallback for demo mode
-      const token = 'mock-jwt-bearer-token-' + Date.now()
-      const user = { ...INITIAL_MOCK_USER, email }
-      return { access_token: token, token_type: 'bearer', user }
+    } catch (err: any) {
+      if (err.response) {
+        const errorDetail = err.response.data?.detail || 'Invalid email or password.'
+        throw new Error(typeof errorDetail === 'string' ? errorDetail : JSON.stringify(errorDetail))
+      }
+      if (process.env.NEXT_PUBLIC_ENABLE_DEMO_MODE === 'true') {
+        const token = 'mock-jwt-bearer-token-' + Date.now()
+        const user = { ...INITIAL_MOCK_USER, email }
+        return { access_token: token, token_type: 'bearer', user }
+      }
+      throw new Error(err.message || 'Unable to connect to authentication server.')
     }
   }
 
@@ -75,10 +81,17 @@ class APIClient {
     try {
       const res = await this.client.post('/auth/signup', { name, email, password })
       return res.data
-    } catch {
-      const token = 'mock-jwt-bearer-token-' + Date.now()
-      const user = { ...INITIAL_MOCK_USER, name, email }
-      return { access_token: token, token_type: 'bearer', user }
+    } catch (err: any) {
+      if (err.response) {
+        const errorDetail = err.response.data?.detail || 'Signup failed. Please check your details.'
+        throw new Error(typeof errorDetail === 'string' ? errorDetail : JSON.stringify(errorDetail))
+      }
+      if (process.env.NEXT_PUBLIC_ENABLE_DEMO_MODE === 'true') {
+        const token = 'mock-jwt-bearer-token-' + Date.now()
+        const user = { ...INITIAL_MOCK_USER, name, email }
+        return { access_token: token, token_type: 'bearer', user }
+      }
+      throw new Error(err.message || 'Unable to connect to authentication server.')
     }
   }
 

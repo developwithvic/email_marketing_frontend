@@ -8,8 +8,8 @@ import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 
 export const LoginForm = () => {
-  const [email, setEmail] = useState('alex.mercer@leadflow.uk')
-  const [password, setPassword] = useState('SecurePass123!')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const { login, token, isLoading, error, clearError } = useAuthStore()
   const router = useRouter()
 
