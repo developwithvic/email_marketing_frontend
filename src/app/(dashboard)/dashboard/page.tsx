@@ -31,7 +31,7 @@ export default function DashboardPage() {
       toast.loading('Scraping UK domains & saving leads...', { id: 'scrape-toast' })
       const res = await runScrape(emailLimit, domainLimit, category)
       toast.success(
-        `Scrape completed! Found ${res.total_emails_found} emails across ${res.successful_leads} UK domains.`,
+        `Scrape completed! Found ${res.progress.emails_found} emails across ${res.progress.domains_scraped} UK domains.`,
         { id: 'scrape-toast' }
       )
     } catch (err: any) {

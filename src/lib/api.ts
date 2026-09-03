@@ -6,6 +6,7 @@ import {
   INITIAL_MOCK_TEMPLATES,
   MOCK_SCRAPE_RESPONSE,
 } from './mockData'
+import { ScrapeTaskResponse, ScrapeTaskListResponse } from '@/types/scrape'
 
 export const getApiBaseUrl = (): string => {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -20,7 +21,7 @@ class APIClient {
   constructor() {
     this.client = axios.create({
       baseURL: getApiBaseUrl(),
-      timeout: 10000,
+      timeout: 120000,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -217,12 +218,28 @@ class APIClient {
 
   // --- Scrape Endpoints ---
   async scrapeToDb(payload: { email_limit?: number; domain_limit?: number; category?: string }) {
+    // Let 409 errors propagate so the store can detect "scrape already in progress"
+    const res = await this.client.post('/scrape/scrape-to-db', payload)
+    return res.data
+  }
+
+  async getScrapeTaskStatus(taskId: string): Promise<ScrapeTaskResponse> {
+    const res = await this.client.get(`/scrape/tasks/${taskId}`)
+    return res.data
+  }
+
+  async getScrapeTasks(): Promise<ScrapeTaskListResponse> {
     try {
-      const res = await this.client.post('/scrape/scrape-to-db', payload)
+      const res = await this.client.get('/scrape/tasks')
       return res.data
     } catch {
-      return MOCK_SCRAPE_RESPONSE
+      return { total: 0, tasks: [] }
     }
+  }
+
+  async cancelScrapeTask(taskId: string): Promise<{ message: string }> {
+    const res = await this.client.post(`/scrape/tasks/${taskId}/cancel`)
+    return res.data
   }
 }
 
