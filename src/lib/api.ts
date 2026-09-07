@@ -133,14 +133,30 @@ class APIClient {
   }
 
   // --- Email Endpoints ---
-  async getAllEmails() {
+  async getAllEmails(category?: string) {
     try {
-      const res = await this.client.get('/emails/all')
+      const params = category && category !== 'ALL' ? { category } : undefined
+      const res = await this.client.get('/emails/all', { params })
+      return res.data
+    } catch {
+      const filtered = category && category !== 'ALL'
+        ? INITIAL_MOCK_EMAILS.filter((e) => e.category === category)
+        : INITIAL_MOCK_EMAILS
+      return {
+        total: filtered.length,
+        emails: filtered,
+      }
+    }
+  }
+
+  async getCategorySummary() {
+    try {
+      const res = await this.client.get('/emails/categories')
       return res.data
     } catch {
       return {
-        total: INITIAL_MOCK_EMAILS.length,
-        emails: INITIAL_MOCK_EMAILS,
+        total_leads: INITIAL_MOCK_EMAILS.length,
+        categories: [],
       }
     }
   }

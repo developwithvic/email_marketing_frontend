@@ -35,7 +35,7 @@ export default function ScrapePage() {
 
   const [domainLimit, setDomainLimit] = useState(50)
   const [emailLimit, setEmailLimit] = useState(500)
-  const [category, setCategory] = useState('WEB')
+  const [category, setCategory] = useState('AUTO')
 
   const [logs, setLogs] = useState<string[]>([])
   const logEndRef = useRef<HTMLDivElement>(null)
@@ -138,11 +138,15 @@ export default function ScrapePage() {
     if (!lastScrapeResult || !lastScrapeResult.results) return
     const allEmails: string[] = []
     lastScrapeResult.results.forEach((r) => {
-      r.emails.forEach((e) => allEmails.push(`${e},${r.domain},${r.status}`))
+      r.emails.forEach((e) => {
+        allEmails.push(
+          `"${e}","${r.domain}","${r.category || category}","${r.subcategory || ''}","${r.status}"`
+        )
+      })
     })
-    const csv = `Email,Domain,Status\n` + allEmails.join('\n')
-    downloadCSV(`scraped-uk-emails-${Date.now()}.csv`, csv)
-    toast.success('Exported results to CSV!')
+    const csv = `Email Address,Domain,Category,Subcategory,Status\n` + allEmails.join('\n')
+    downloadCSV(`scraped-categorized-uk-emails-${Date.now()}.csv`, csv)
+    toast.success('Exported categorized results to CSV!')
   }
 
   // Calculate progress percentage from real data
@@ -243,11 +247,12 @@ export default function ScrapePage() {
                 disabled={isScraping}
                 className="w-full glass-input px-4 py-3 rounded-xl text-sm font-semibold bg-slate-900 text-white disabled:opacity-50"
               >
-                <option value="WEB">WEB - General Business</option>
-                <option value="TECH">TECH - Software &amp; Engineering</option>
-                <option value="FINANCE">FINANCE - Banking &amp; Accounting</option>
-                <option value="RETAIL">RETAIL - E-Commerce &amp; Stores</option>
-                <option value="HEALTH">HEALTH - Medical &amp; Biotech</option>
+                <option value="AUTO">✨ Auto-Categorize from Website (Recommended)</option>
+                <option value="LOCAL_SERVICES">🛠️ Local Service Businesses (Plumbers, Salons, Garages...)</option>
+                <option value="HEALTH_CARE">🏥 Health and Care Related (Care agencies, Childcare, Clinics...)</option>
+                <option value="FOOD_HOSPITALITY">🍽️ Food and Hospitality (Takeaways, African food, Caterers...)</option>
+                <option value="PROFESSIONAL_SERVICES">💼 Professional Services (Travel, Property sourcing, Legal...)</option>
+                <option value="GENERAL">🌐 General UK Enterprise</option>
               </select>
             </div>
 
@@ -434,6 +439,8 @@ export default function ScrapePage() {
                 <tr>
                   <th className="py-3.5 px-6">Domain</th>
                   <th className="py-3.5 px-6">Status</th>
+                  <th className="py-3.5 px-6">Detected Category</th>
+                  <th className="py-3.5 px-6">Subcategory / Niche</th>
                   <th className="py-3.5 px-6">Extracted Emails</th>
                 </tr>
               </thead>
@@ -454,6 +461,20 @@ export default function ScrapePage() {
                         <span className="px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold whitespace-nowrap">
                           Error
                         </span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="px-2.5 py-1 rounded-full bg-blue-600/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold whitespace-nowrap">
+                        {r.category ? r.category.replace('_', ' ') : 'GENERAL'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      {r.subcategory ? (
+                        <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-300 text-[11px]">
+                          {r.subcategory}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 italic">General</span>
                       )}
                     </td>
                     <td className="py-4 px-6">

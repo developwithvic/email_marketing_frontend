@@ -186,7 +186,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-xs font-bold text-white">Latest Lead Saved</p>
                 <p className="text-[11px] text-gray-400 truncate max-w-[220px]">
-                  {emails[0] || 'contact@apex-solutions.co.uk'}
+                  {typeof emails[0] === 'string' ? emails[0] : emails[0]?.email || 'contact@apex-solutions.co.uk'}
                 </p>
               </div>
             </div>

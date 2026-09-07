@@ -8,6 +8,8 @@ export interface DomainScrapeResult {
   domain: string
   emails: string[]
   status: 'success' | 'error' | 'skipped' | 'no_emails_found'
+  category?: string
+  subcategory?: string
   error_message?: string
 }
 

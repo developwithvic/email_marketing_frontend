@@ -26,25 +26,19 @@ export const INITIAL_MOCK_PROFILE: Profile = {
   logo_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80',
 }
 
-export const INITIAL_MOCK_EMAILS: string[] = [
-  'contact@apex-solutions.co.uk',
-  'support@brighton-tech.org.uk',
-  'info@cambridge-analytics.co.uk',
-  'sales@manchester-logistics.co.uk',
-  'enquiries@edinburgh-consulting.co.uk',
-  'hello@birmingham-agency.co.uk',
-  'partnerships@oxford-innovations.co.uk',
-  'careers@bristol-media.co.uk',
-  'admin@leeds-manufacturing.co.uk',
-  'office@glasgow-design.co.uk',
-  'helpdesk@belfast-software.co.uk',
-  'marketing@cardiff-fintech.co.uk',
-  'info@surrey-biotech.co.uk',
-  'contact@yorkshire-enterprises.co.uk',
-  'sales@newcastle-digital.co.uk',
-  'ceo@london-venture-capital.co.uk',
-  'press@sussex-communications.co.uk',
-  'leads@nottingham-retail.co.uk',
+export const INITIAL_MOCK_EMAILS: EmailRecord[] = [
+  { id: 'lead-1', email: 'hello@cutandshavebarbers.co.uk', domain: 'cutandshavebarbers.co.uk', category: 'LOCAL_SERVICES', subcategory: 'Barbershops', is_verified: true },
+  { id: 'lead-2', email: 'enquiries@premiercaregroup.co.uk', domain: 'premiercaregroup.co.uk', category: 'HEALTH_CARE', subcategory: 'Care agencies', is_verified: true },
+  { id: 'lead-3', email: 'orders@tasteoflagostakeaway.co.uk', domain: 'tasteoflagostakeaway.co.uk', category: 'FOOD_HOSPITALITY', subcategory: 'African food vendors', is_verified: true },
+  { id: 'lead-4', email: 'deals@ukpropertysourcing.co.uk', domain: 'ukpropertysourcing.co.uk', category: 'PROFESSIONAL_SERVICES', subcategory: 'Property sourcing agents', is_verified: true },
+  { id: 'lead-5', email: 'support@londonlivingcare.org.uk', domain: 'londonlivingcare.org.uk', category: 'HEALTH_CARE', subcategory: 'Supported living providers', is_verified: true },
+  { id: 'lead-6', email: 'info@expressplumbinguk.co.uk', domain: 'expressplumbinguk.co.uk', category: 'LOCAL_SERVICES', subcategory: 'Plumbers', is_verified: true },
+  { id: 'lead-7', email: 'bookings@goldenwoktakeaway.co.uk', domain: 'goldenwoktakeaway.co.uk', category: 'FOOD_HOSPITALITY', subcategory: 'Takeaway restaurants', is_verified: true },
+  { id: 'lead-8', email: 'contact@manchestercatering.co.uk', domain: 'manchestercatering.co.uk', category: 'FOOD_HOSPITALITY', subcategory: 'Catering businesses', is_verified: true },
+  { id: 'lead-9', email: 'admin@brightstartsdaynursery.co.uk', domain: 'brightstartsdaynursery.co.uk', category: 'HEALTH_CARE', subcategory: 'Private day nurseries', is_verified: true },
+  { id: 'lead-10', email: 'team@apexsparkselectric.co.uk', domain: 'apexsparkselectric.co.uk', category: 'LOCAL_SERVICES', subcategory: 'Electricians', is_verified: true },
+  { id: 'lead-11', email: 'contact@birminghamcleaners.co.uk', domain: 'birminghamcleaners.co.uk', category: 'LOCAL_SERVICES', subcategory: 'Cleaning companies', is_verified: true },
+  { id: 'lead-12', email: 'travel@luxurydiscovery.co.uk', domain: 'luxurydiscovery.co.uk', category: 'PROFESSIONAL_SERVICES', subcategory: 'Travel agents', is_verified: true },
 ]
 
 export const INITIAL_MOCK_TEMPLATES: EmailTemplate[] = [

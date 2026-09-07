@@ -1,12 +1,13 @@
 import { create } from 'zustand'
-import { EmailTemplate, ScrapeToDbResponse, BulkSendResult } from '@/types'
+import { EmailTemplate, EmailRecord, ScrapeToDbResponse, BulkSendResult } from '@/types'
 import { ScrapeTaskProgress, ScrapeTaskResponse } from '@/types/scrape'
 import { apiClient } from '@/lib/api'
 
 interface EmailState {
-  emails: string[]
+  emails: EmailRecord[]
   templates: EmailTemplate[]
   totalEmails: number
+  categoryCounts: Record<string, number>
   isFetchingEmails: boolean
   isFetchingTemplates: boolean
   isScraping: boolean
@@ -17,7 +18,7 @@ interface EmailState {
   lastCampaignResult: BulkSendResult | null
   error: string | null
 
-  fetchEmails: () => Promise<void>
+  fetchEmails: (category?: string) => Promise<void>
   fetchTemplates: () => Promise<void>
   createTemplate: (template: Partial<EmailTemplate>) => Promise<EmailTemplate>
   deleteTemplate: (id: string) => Promise<void>
@@ -41,6 +42,7 @@ export const useEmailStore = create<EmailState>((set, get) => ({
   emails: [],
   templates: [],
   totalEmails: 0,
+  categoryCounts: {},
   isFetchingEmails: false,
   isFetchingTemplates: false,
   isScraping: false,
@@ -51,13 +53,36 @@ export const useEmailStore = create<EmailState>((set, get) => ({
   lastCampaignResult: null,
   error: null,
 
-  fetchEmails: async () => {
+  fetchEmails: async (category?: string) => {
     set({ isFetchingEmails: true, error: null })
     try {
-      const data = await apiClient.getAllEmails()
+      const data = await apiClient.getAllEmails(category)
+      const rawList = data.emails || []
+      const normalizedEmails: EmailRecord[] = rawList.map((item: any) => {
+        if (typeof item === 'string') {
+          return {
+            id: item,
+            email: item,
+            domain: item.split('@')[1] || 'domain.co.uk',
+            category: 'GENERAL',
+            is_verified: true,
+          }
+        }
+        return {
+          id: item.id || item.email,
+          email: item.email,
+          domain: item.domain || (item.email?.split('@')[1] || 'domain.co.uk'),
+          category: item.category || 'GENERAL',
+          subcategory: item.subcategory,
+          is_verified: item.is_verified ?? true,
+          created_at: item.created_at,
+        }
+      })
+
       set({
-        emails: data.emails || [],
-        totalEmails: data.total || (data.emails ? data.emails.length : 0),
+        emails: normalizedEmails,
+        totalEmails: data.total || normalizedEmails.length,
+        categoryCounts: data.category_counts || {},
         isFetchingEmails: false,
       })
     } catch (err: any) {

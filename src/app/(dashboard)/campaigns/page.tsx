@@ -58,7 +58,7 @@ function CampaignContent() {
 
     let targetRecipients: string[] = []
     if (recipientSource === 'DATABASE') {
-      targetRecipients = emails
+      targetRecipients = emails.map((e: any) => (typeof e === 'string' ? e : e.email)).filter(Boolean)
     } else {
       targetRecipients = customEmailsInput
         .split('\n')
