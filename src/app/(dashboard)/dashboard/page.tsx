@@ -134,12 +134,12 @@ export default function DashboardPage() {
           <form onSubmit={handleQuickScrape} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                Domain Limit (Max 10k)
+                Domain Limit (Max 100k)
               </label>
               <input
                 type="number"
                 min={1}
-                max={10000}
+                max={100000}
                 value={domainLimit}
                 onChange={(e) => setDomainLimit(Number(e.target.value))}
                 className="w-full glass-input px-4 py-2.5 rounded-xl text-sm font-semibold"
@@ -153,7 +153,7 @@ export default function DashboardPage() {
               <input
                 type="number"
                 min={10}
-                max={50000}
+                max={200000}
                 value={emailLimit}
                 onChange={(e) => setEmailLimit(Number(e.target.value))}
                 className="w-full glass-input px-4 py-2.5 rounded-xl text-sm font-semibold"

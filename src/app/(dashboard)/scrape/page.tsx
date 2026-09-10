@@ -211,12 +211,12 @@ export default function ScrapePage() {
           <form onSubmit={handleStartScrape} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                UK Domains Limit (1 - 10,000)
+                UK Domains Limit (1 - 100,000)
               </label>
               <input
                 type="number"
                 min={1}
-                max={10000}
+                max={100000}
                 value={domainLimit}
                 onChange={(e) => setDomainLimit(Number(e.target.value))}
                 required
@@ -233,7 +233,7 @@ export default function ScrapePage() {
               <input
                 type="number"
                 min={10}
-                max={100000}
+                max={200000}
                 value={emailLimit}
                 onChange={(e) => setEmailLimit(Number(e.target.value))}
                 required
