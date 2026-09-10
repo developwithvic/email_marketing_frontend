@@ -267,7 +267,7 @@ class APIClient {
   }
 
   // --- Scrape Endpoints ---
-  async scrapeToDb(payload: { email_limit?: number; domain_limit?: number; category?: string }) {
+  async scrapeToDb(payload: { email_limit?: number; domain_limit?: number; category?: string; country?: string; location?: string }) {
     // Let 409 errors propagate so the store can detect "scrape already in progress"
     const res = await this.client.post('/scrape/scrape-to-db', payload)
     return res.data

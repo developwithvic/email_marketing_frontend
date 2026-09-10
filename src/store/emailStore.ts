@@ -22,7 +22,7 @@ interface EmailState {
   fetchTemplates: () => Promise<void>
   createTemplate: (template: Partial<EmailTemplate>) => Promise<EmailTemplate>
   deleteTemplate: (id: string) => Promise<void>
-  runScrape: (emailLimit: number, domainLimit: number, category: string) => Promise<ScrapeTaskResponse>
+  runScrape: (emailLimit: number, domainLimit: number, category: string, country?: string, location?: string) => Promise<ScrapeTaskResponse>
   checkForActiveTask: () => Promise<void>
   cancelScrape: () => Promise<void>
   sendBulkCampaign: (emails: string[], templateId: string, variables?: Record<string, string>) => Promise<BulkSendResult>
@@ -129,7 +129,7 @@ export const useEmailStore = create<EmailState>((set, get) => ({
     }
   },
 
-  runScrape: async (emailLimit, domainLimit, category) => {
+  runScrape: async (emailLimit, domainLimit, category, country, location) => {
     set({ isScraping: true, error: null, lastScrapeResult: null, scrapeProgress: null, scrapeStatus: 'pending' })
 
     try {
@@ -138,6 +138,8 @@ export const useEmailStore = create<EmailState>((set, get) => ({
         email_limit: emailLimit,
         domain_limit: domainLimit,
         category,
+        country,
+        location,
       })
 
       const taskId = taskResponse.task_id

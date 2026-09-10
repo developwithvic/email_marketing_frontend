@@ -37,6 +37,8 @@ export default function ScrapePage() {
   const [domainLimit, setDomainLimit] = useState(50)
   const [emailLimit, setEmailLimit] = useState(500)
   const [category, setCategory] = useState('AUTO')
+  const [country, setCountry] = useState('UK')
+  const [location, setLocation] = useState('')
 
   const [logs, setLogs] = useState<string[]>([])
   const logEndRef = useRef<HTMLDivElement>(null)
@@ -115,13 +117,15 @@ export default function ScrapePage() {
     clearError()
     prevProgressRef.current = null
 
+    const locTrimmed = location.trim()
+    const locText = locTrimmed ? ` | Location: ${locTrimmed}` : ''
     setLogs([
-      `[${new Date().toLocaleTimeString()}] Initializing UK Lead Discovery Engine...`,
-      `[${new Date().toLocaleTimeString()}] Parameters: ${domainLimit} domains, max ${emailLimit} emails, category: ${category}`,
+      `[${new Date().toLocaleTimeString()}] Initializing Lead Discovery Engine...`,
+      `[${new Date().toLocaleTimeString()}] Parameters: ${domainLimit} domains, max ${emailLimit} emails, category: ${category}, country: ${country}${locText}`,
     ])
 
     try {
-      await runScrape(emailLimit, domainLimit, category)
+      await runScrape(emailLimit, domainLimit, category, country, locTrimmed || undefined)
     } catch (err: any) {
       if (!logs.some((l) => l.includes('ERROR') || l.includes('already in progress'))) {
         setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ❌ ${err.message}`])
@@ -141,12 +145,12 @@ export default function ScrapePage() {
     lastScrapeResult.results.forEach((r) => {
       r.emails.forEach((e) => {
         allEmails.push(
-          `"${e}","${r.domain}","${r.category || category}","${r.subcategory || ''}","${r.status}"`
+          `"${e}","${r.domain}","${r.category || category}","${r.subcategory || ''}","${r.country || country}","${r.location || location}","${r.status}"`
         )
       })
     })
-    const csv = `Email Address,Domain,Category,Subcategory,Status\n` + allEmails.join('\n')
-    downloadCSV(`scraped-categorized-uk-emails-${Date.now()}.csv`, csv)
+    const csv = `Email Address,Domain,Category,Subcategory,Country,Location,Status\n` + allEmails.join('\n')
+    downloadCSV(`scraped-leads-${country.toLowerCase()}-${Date.now()}.csv`, csv)
     toast.success('Exported categorized results to CSV!')
   }
 
@@ -211,7 +215,7 @@ export default function ScrapePage() {
           <form onSubmit={handleStartScrape} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                UK Domains Limit (1 - 100,000)
+                Domain Crawl Limit (1 - 100,000)
               </label>
               <input
                 type="number"
@@ -223,7 +227,7 @@ export default function ScrapePage() {
                 disabled={isScraping}
                 className="w-full glass-input px-4 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
               />
-              <p className="text-[11px] text-gray-400 mt-1">Number of UK registered domains to crawl.</p>
+              <p className="text-[11px] text-gray-400 mt-1">Number of business domains to crawl in this batch.</p>
             </div>
 
             <div>
@@ -243,6 +247,48 @@ export default function ScrapePage() {
               <p className="text-[11px] text-gray-400 mt-1">Stops crawling automatically once target is hit.</p>
             </div>
 
+            {/* Country Selector (Optional) */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Target Country (Optional)</span>
+                <span className="text-[10px] text-blue-400 font-mono">CC-TLD</span>
+              </label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                disabled={isScraping}
+                className="w-full glass-input px-4 py-3 rounded-xl text-sm font-semibold bg-slate-900 text-white disabled:opacity-50"
+              >
+                <option value="UK">🇬🇧 United Kingdom (UK - .co.uk, .uk)</option>
+                <option value="US">🇺🇸 United States (US - .com, .org, .us)</option>
+                <option value="CA">🇨🇦 Canada (CA - .ca, .com)</option>
+                <option value="AU">🇦🇺 Australia (AU - .com.au, .au)</option>
+                <option value="DE">🇩🇪 Germany (DE - .de)</option>
+                <option value="FR">🇫🇷 France (FR - .fr)</option>
+                <option value="ALL">🌐 Global / All Countries</option>
+              </select>
+              <p className="text-[11px] text-gray-400 mt-1">Select country for national domain pools & regional TLDs.</p>
+            </div>
+
+            {/* Place / City Input (Optional) */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Target City / Place (Optional)</span>
+                <span className="text-[10px] text-emerald-400 font-mono">Geo-Target</span>
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. London, Manchester, Miami, Toronto..."
+                disabled={isScraping}
+                className="w-full glass-input px-4 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Optional: Narrow crawling to businesses in a specific city, town, or region.
+              </p>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
                 Lead Classification Tag
@@ -258,7 +304,7 @@ export default function ScrapePage() {
                 <option value="HEALTH_CARE">🏥 Health and Care Related (Care agencies, Childcare, Clinics...)</option>
                 <option value="FOOD_HOSPITALITY">🍽️ Food and Hospitality (Takeaways, African food, Caterers...)</option>
                 <option value="PROFESSIONAL_SERVICES">💼 Professional Services (Travel, Property sourcing, Legal...)</option>
-                <option value="GENERAL">🌐 General UK Enterprise</option>
+                <option value="GENERAL">🌐 General Enterprise</option>
               </select>
             </div>
 

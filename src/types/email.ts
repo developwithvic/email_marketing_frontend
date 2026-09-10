@@ -91,6 +91,8 @@ export interface EmailRecord {
   domain?: string
   category?: string
   subcategory?: string
+  country?: string
+  location?: string
   is_verified?: boolean
   created_at?: string
 }

@@ -12,6 +12,7 @@ import {
   Tag,
   Building2,
   ChevronDown,
+  Globe,
 } from 'lucide-react'
 import { useEmailStore } from '@/store/emailStore'
 import { TARGET_CATEGORIES, TargetCategoryKey, EmailRecord } from '@/types/email'
@@ -44,13 +45,17 @@ export default function EmailsPage() {
     const domainStr = item.domain || ''
     const subcatStr = item.subcategory || ''
     const catStr = item.category || 'GENERAL'
+    const countryStr = item.country || ''
+    const locationStr = item.location || ''
 
     const query = search.toLowerCase()
     const matchesSearch =
       emailStr.toLowerCase().includes(query) ||
       domainStr.toLowerCase().includes(query) ||
       subcatStr.toLowerCase().includes(query) ||
-      catStr.toLowerCase().includes(query)
+      catStr.toLowerCase().includes(query) ||
+      countryStr.toLowerCase().includes(query) ||
+      locationStr.toLowerCase().includes(query)
 
     if (!matchesSearch) return false
 
@@ -86,11 +91,11 @@ export default function EmailsPage() {
     // If specific rows are explicitly selected via checkboxes, export the selection
     if (selectedEmails.length > 0) {
       const targetList = emails.filter((e) => selectedEmails.includes(e.email))
-      const headers = 'Email Address,Domain,Category,Subcategory\n'
+      const headers = 'Email Address,Domain,Category,Subcategory,Country,Location\n'
       const csvContent =
         headers +
         targetList
-          .map((e) => `"${e.email}","${e.domain || ''}","${e.category || 'GENERAL'}","${e.subcategory || ''}"`)
+          .map((e) => `"${e.email}","${e.domain || ''}","${e.category || 'GENERAL'}","${e.subcategory || ''}","${e.country || ''}","${e.location || ''}"`)
           .join('\n')
 
       const categoryLabel = catToExport.toLowerCase().replace('_', '-')
@@ -328,14 +333,15 @@ export default function EmailsPage() {
                 <th className="py-4 px-6">Domain</th>
                 <th className="py-4 px-6">Industry Category</th>
                 <th className="py-4 px-6">Subcategory / Niche</th>
+                <th className="py-4 px-6">Location</th>
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-medium">
               {filteredEmails.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-500 italic">
-                    No emails found matching your query or filter. Try running the UK Scraper to acquire new leads.
+                  <td colSpan={7} className="py-12 text-center text-gray-500 italic">
+                    No emails found matching your query or filter. Try running the Scraper to acquire new leads.
                   </td>
                 </tr>
               ) : (
@@ -344,6 +350,8 @@ export default function EmailsPage() {
                   const domain = item.domain || (email.split('@')[1] || 'domain.co.uk')
                   const category = item.category || 'GENERAL'
                   const subcategory = item.subcategory
+                  const country = item.country
+                  const location = item.location
                   const isSelected = selectedEmails.includes(email)
 
                   return (
@@ -385,6 +393,16 @@ export default function EmailsPage() {
                           </span>
                         ) : (
                           <span className="text-gray-600 text-[11px] italic">General Lead</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-6">
+                        {location || country ? (
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-medium inline-flex items-center gap-1">
+                            <Globe className="w-2.5 h-2.5 text-emerald-400" />
+                            {location ? `${location}, ` : ''}{country || 'Global'}
+                          </span>
+                        ) : (
+                          <span className="text-gray-600 text-[11px] italic">—</span>
                         )}
                       </td>
                       <td className="py-3.5 px-6 text-right">

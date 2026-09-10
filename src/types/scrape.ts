@@ -2,6 +2,8 @@ export interface ScrapeToDbPayload {
   email_limit?: number
   domain_limit?: number
   category?: string
+  country?: string
+  location?: string
 }
 
 export interface DomainScrapeResult {
@@ -10,6 +12,8 @@ export interface DomainScrapeResult {
   status: 'success' | 'error' | 'skipped' | 'no_emails_found'
   category?: string
   subcategory?: string
+  country?: string
+  location?: string
   error_message?: string
 }
 
