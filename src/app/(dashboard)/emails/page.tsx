@@ -79,39 +79,69 @@ export default function EmailsPage() {
     }
   }
 
-  const handleExportCSV = (exportCategory?: TargetCategoryKey) => {
+  const handleExportCSV = async (exportCategory?: TargetCategoryKey) => {
     const catToExport = exportCategory || activeCategoryFilter
 
-    let targetList: EmailRecord[] = []
+    // If specific rows are explicitly selected via checkboxes, export the selection
     if (selectedEmails.length > 0) {
-      targetList = emails.filter((e) => selectedEmails.includes(e.email))
-    } else if (catToExport === 'ALL') {
-      targetList = filteredEmails
-    } else {
-      targetList = emails.filter((e) => {
-        const catNorm = (e.category || 'GENERAL').toUpperCase()
-        if (catToExport === 'GENERAL') {
-          return catNorm === 'GENERAL' || catNorm === 'WEB' || catNorm === 'MARKETING'
-        }
-        return catNorm === catToExport
-      })
-    }
+      const targetList = emails.filter((e) => selectedEmails.includes(e.email))
+      const headers = 'Email Address,Domain,Category,Subcategory\n'
+      const csvContent =
+        headers +
+        targetList
+          .map((e) => `"${e.email}","${e.domain || ''}","${e.category || 'GENERAL'}","${e.subcategory || ''}"`)
+          .join('\n')
 
-    if (targetList.length === 0) {
-      toast.error('No emails available to export for this category.')
+      const categoryLabel = catToExport.toLowerCase().replace('_', '-')
+      downloadCSV(`leads-selected-${categoryLabel}-${Date.now()}.csv`, csvContent)
+      toast.success(`Exported ${targetList.length} selected leads to CSV!`)
       return
     }
 
-    const headers = 'Email Address,Domain,Category,Subcategory\n'
-    const csvContent =
-      headers +
-      targetList
-        .map((e) => `"${e.email}","${e.domain || ''}","${e.category || 'GENERAL'}","${e.subcategory || ''}"`)
-        .join('\n')
+    // Otherwise, export the full database category via the backend endpoint
+    const toastId = toast.loading(`Preparing ${catToExport === 'ALL' ? 'all' : catToExport} CSV export from database...`)
+    try {
+      const { filename, blob } = await apiClient.exportEmails(catToExport)
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      toast.success(`Successfully exported ${catToExport} leads to ${filename}!`, { id: toastId })
+    } catch {
+      // Fallback to client-side in-memory export if backend request fails (e.g. mock mode)
+      let targetList: EmailRecord[] = []
+      if (catToExport === 'ALL') {
+        targetList = filteredEmails
+      } else {
+        targetList = emails.filter((e) => {
+          const catNorm = (e.category || 'GENERAL').toUpperCase()
+          if (catToExport === 'GENERAL') {
+            return catNorm === 'GENERAL' || catNorm === 'WEB' || catNorm === 'MARKETING'
+          }
+          return catNorm === catToExport
+        })
+      }
 
-    const categoryLabel = catToExport.toLowerCase().replace('_', '-')
-    downloadCSV(`leads-${categoryLabel}-${Date.now()}.csv`, csvContent)
-    toast.success(`Exported ${targetList.length} leads (${catToExport}) to CSV!`)
+      if (targetList.length === 0) {
+        toast.error('No emails available to export for this category.', { id: toastId })
+        return
+      }
+
+      const headers = 'Email Address,Domain,Category,Subcategory\n'
+      const csvContent =
+        headers +
+        targetList
+          .map((e) => `"${e.email}","${e.domain || ''}","${e.category || 'GENERAL'}","${e.subcategory || ''}"`)
+          .join('\n')
+
+      const categoryLabel = catToExport.toLowerCase().replace('_', '-')
+      downloadCSV(`leads-${categoryLabel}-${Date.now()}.csv`, csvContent)
+      toast.success(`Exported ${targetList.length} leads (${catToExport}) to CSV!`, { id: toastId })
+    }
   }
 
   const openSendSingleModal = (email: string) => {

@@ -161,6 +161,40 @@ class APIClient {
     }
   }
 
+  getExportUrl(category?: string, subcategory?: string): string {
+    const params = new URLSearchParams()
+    if (category && category !== 'ALL') {
+      params.append('category', category)
+    }
+    if (subcategory && subcategory !== 'ALL') {
+      params.append('subcategory', subcategory)
+    }
+    const qs = params.toString()
+    const base = this.client.defaults.baseURL || getApiBaseUrl()
+    return `${base}/emails/export${qs ? `?${qs}` : ''}`
+  }
+
+  async exportEmails(category?: string, subcategory?: string): Promise<{ filename: string; blob: Blob }> {
+    const params: Record<string, string> = {}
+    if (category && category !== 'ALL') params.category = category
+    if (subcategory && subcategory !== 'ALL') params.subcategory = subcategory
+
+    const res = await this.client.get('/emails/export', {
+      params,
+      responseType: 'blob',
+    })
+
+    let filename = `leads-${(category || 'all').toLowerCase().replace('_', '-')}.csv`
+    const disposition = res.headers['content-disposition']
+    if (disposition && disposition.includes('filename=')) {
+      const match = disposition.match(/filename="?([^";]+)"?/)
+      if (match && match[1]) {
+        filename = match[1]
+      }
+    }
+    return { filename, blob: res.data }
+  }
+
   async getTemplates() {
     try {
       const res = await this.client.get('/emails/templates')
