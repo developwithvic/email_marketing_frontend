@@ -17,6 +17,7 @@ import {
 import { useEmailStore } from '@/store/emailStore'
 import { DomainScrapeResult } from '@/types'
 import { downloadCSV } from '@/lib/utils'
+import { CategoryExportDropdown } from '@/components/common/CategoryExportDropdown'
 import toast from 'react-hot-toast'
 
 export default function ScrapePage() {
@@ -191,6 +192,11 @@ export default function ScrapePage() {
               Export Scrape CSV
             </button>
           )}
+
+          <CategoryExportDropdown
+            variant="secondary"
+            buttonText="Export Leads"
+          />
         </div>
       </div>
 

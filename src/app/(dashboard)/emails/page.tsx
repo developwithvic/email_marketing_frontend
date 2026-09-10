@@ -17,6 +17,7 @@ import { useEmailStore } from '@/store/emailStore'
 import { TARGET_CATEGORIES, TargetCategoryKey, EmailRecord } from '@/types/email'
 import { downloadCSV } from '@/lib/utils'
 import { Modal } from '@/components/common/Modal'
+import { CategoryExportDropdown } from '@/components/common/CategoryExportDropdown'
 import { apiClient } from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -224,13 +225,10 @@ export default function EmailsPage() {
           >
             <RefreshCw className={`w-4 h-4 ${isFetchingEmails ? 'animate-spin' : ''}`} />
           </button>
-          <button
-            onClick={() => handleExportCSV()}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all flex items-center gap-2 whitespace-nowrap shadow-lg shadow-blue-600/20"
-          >
-            <Download className="w-4 h-4" />
-            Export CSV ({selectedEmails.length > 0 ? `${selectedEmails.length} Selected` : activeCategoryFilter === 'ALL' ? 'All' : getCategoryLabel(activeCategoryFilter)})
-          </button>
+          <CategoryExportDropdown
+            activeCategory={activeCategoryFilter}
+            selectedEmails={selectedEmails}
+          />
         </div>
       </div>
 
@@ -283,6 +281,33 @@ export default function EmailsPage() {
           })}
         </div>
       </div>
+
+      {/* Selected Action Banner */}
+      {selectedEmails.length > 0 && (
+        <div className="p-4 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+              {selectedEmails.length}
+            </span>
+            <p className="text-xs text-blue-200 font-semibold">
+              <strong className="text-white">{selectedEmails.length}</strong> {selectedEmails.length === 1 ? 'lead' : 'leads'} selected from database
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectedEmails([])}
+              className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
+            >
+              Clear selection
+            </button>
+            <CategoryExportDropdown
+              activeCategory={activeCategoryFilter}
+              selectedEmails={selectedEmails}
+              buttonText={`Export ${selectedEmails.length} Selected (CSV)`}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Database Table */}
       <div className="glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-2xl">

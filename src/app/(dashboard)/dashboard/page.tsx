@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { StatCard } from '@/components/common/StatCard'
+import { CategoryExportDropdown } from '@/components/common/CategoryExportDropdown'
 import {
   Mail,
   Database,
@@ -12,14 +13,20 @@ import {
   ArrowRight,
   CheckCircle2,
   Globe,
+  Download,
 } from 'lucide-react'
 import { useEmailStore } from '@/store/emailStore'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
 
 export default function DashboardPage() {
-  const { totalEmails, templates, emails, runScrape, isScraping } = useEmailStore()
+  const { totalEmails, templates, emails, runScrape, isScraping, fetchEmails, fetchTemplates } = useEmailStore()
   const { user } = useAuthStore()
+
+  useEffect(() => {
+    fetchEmails()
+    fetchTemplates()
+  }, [])
 
   const [domainLimit, setDomainLimit] = useState(25)
   const [emailLimit, setEmailLimit] = useState(250)
@@ -56,6 +63,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0 relative z-10">
+          <CategoryExportDropdown
+            variant="secondary"
+            buttonText="Export Leads"
+          />
           <Link
             href="/scrape"
             className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap"
@@ -191,12 +202,18 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <Link
-              href="/emails"
-              className="text-xs font-bold text-blue-400 hover:underline flex items-center gap-1 whitespace-nowrap"
-            >
-              View Full Database <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <CategoryExportDropdown
+                variant="glass"
+                buttonText="Export Leads"
+              />
+              <Link
+                href="/emails"
+                className="text-xs font-bold text-blue-400 hover:underline flex items-center gap-1 whitespace-nowrap"
+              >
+                View Full Database <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
 
